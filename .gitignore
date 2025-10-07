@@ -9,3 +9,7 @@ jobAlert.ipynb
 # Ignore temporary or local test files
 *.log
 .env
+
+# Ignore local .csv
+
+itjobs_data_analyst.csv
