@@ -1,0 +1,11 @@
+# Ignore Python cache files and compiled code
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore local notebooks
+jobAlert.ipynb
+
+# Ignore temporary or local test files
+*.log
+.env
