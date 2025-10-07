@@ -40,6 +40,12 @@ jobs:
         run: |
           python scraper_itjobs.py
 
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Commit and push updated CSV (if changed)
         run: |
           # Adjust this path if your CSV file has a different name or location
@@ -57,4 +63,5 @@ jobs:
           else
             echo "⚠️ CSV file not found at $CSV_PATH. Please verify the path in your Python script."
           fi
+
 
