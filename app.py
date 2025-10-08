@@ -69,7 +69,7 @@ with tab1:
     # Display table
     st.dataframe(
         active_jobs[["date", "title", "company", "details", "link"]],
-        use_container_width=True,
+        width=True,
         hide_index=True
     )
 
@@ -89,12 +89,12 @@ with tab2:
         title="Number of job postings per month",
         text_auto=True
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width=True)
 
     st.markdown("### Full Job History")
     st.dataframe(
         df.sort_values("date", ascending=False)[["date", "title", "company", "ativo", "details", "link"]],
-        use_container_width=True,
+        width=True,
         hide_index=True
     )
 
