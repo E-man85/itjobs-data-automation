@@ -23,12 +23,15 @@ def get_last_commit_time():
             commit_date = r.json()[0]["commit"]["committer"]["date"]
             dt = datetime.strptime(commit_date, "%Y-%m-%dT%H:%M:%SZ")
             return dt.strftime("%d %b %Y %H:%M UTC")
-        else:
-            return "Unknown"
     except Exception:
-        return "Unknown"
+        pass
 
-last_update = get_last_commit_time()
+    # 🧩 fallback: use the newest date in the CSV if API fails
+    if not df.empty and df["date"].notna().any():
+        latest_date = df["date"].max()
+        return latest_date.strftime("%d %b %Y")
+
+    return "Unknown"
 
 # === Page configuration ===
 st.set_page_config(
