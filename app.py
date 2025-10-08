@@ -15,7 +15,7 @@ def load_data():
 df = load_data()
 
 # === Get last update timestamp from GitHub ===
-def get_last_commit_time():
+def get_last_commit_time(df):
     api_url = "https://api.github.com/repos/E-man85/itjobs-data-automation/commits?path=itjobs_data_analyst.csv&page=1&per_page=1"
     try:
         r = requests.get(api_url)
@@ -32,6 +32,9 @@ def get_last_commit_time():
         return latest_date.strftime("%d %b %Y")
 
     return "Unknown"
+
+# ✅ call the function here
+last_update = get_last_commit_time(df)
 
 # === Page configuration ===
 st.set_page_config(
