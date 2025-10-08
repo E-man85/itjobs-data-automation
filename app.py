@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import requests
+from datetime import datetime
 
 # === Load data ===
 @st.cache_data(ttl=3600)
@@ -11,9 +13,6 @@ def load_data():
     return df
 
 df = load_data()
-
-import requests
-from datetime import datetime
 
 # === Get last update timestamp from GitHub ===
 def get_last_commit_time():
@@ -38,6 +37,7 @@ st.set_page_config(
     layout="wide"
 )
 
+# === Header ===
 st.title("📈 ITJobs Data Analyst Dashboard")
 st.caption(f"🔄 Last data update: {last_update}")
 st.caption("Automated daily data extraction from itjobs.pt")
@@ -66,18 +66,23 @@ with tab1:
 
     st.write(f"Showing {len(active_jobs)} active job(s).")
 
-    # Display table
-    st.dataframe(
-        active_jobs[["date", "title", "company", "details", "link"]],
-        width=True,
-        hide_index=True
+    # Make links clickable
+    active_jobs["link"] = active_jobs["link"].apply(
+        lambda x: f'<a href="{x}" target="_blank">🔗 Open</a>' if pd.notna(x) else ""
+    )
+
+    # Display table using full width
+    st.markdown(
+        active_jobs[["date", "title", "company", "details", "link"]]
+        .to_html(escape=False, index=False),
+        unsafe_allow_html=True,
     )
 
 # --- TAB 2: Historical data ---
 with tab2:
     st.subheader("Job Posting History")
 
-    # Number of active/inactive jobs over time
+    # Number of jobs per month
     df["month"] = df["date"].dt.to_period("M").astype(str)
     monthly_jobs = df.groupby("month").agg({"title": "count"}).reset_index()
     monthly_jobs.columns = ["month", "num_jobs"]
@@ -86,16 +91,25 @@ with tab2:
         monthly_jobs,
         x="month",
         y="num_jobs",
-        title="Number of job postings per month",
+        title="Number of Job Postings per Month",
         text_auto=True
     )
-    st.plotly_chart(fig, width=True)
+
+    # ✅ Updated syntax for Plotly 6.0+
+    st.plotly_chart(
+        fig,
+        config={"responsive": True},  # replaces deprecated arguments
+    )
 
     st.markdown("### Full Job History")
-    st.dataframe(
-        df.sort_values("date", ascending=False)[["date", "title", "company", "ativo", "details", "link"]],
-        width=True,
-        hide_index=True
+
+    df["link"] = df["link"].apply(
+        lambda x: f'<a href="{x}" target="_blank">🔗 Open</a>' if pd.notna(x) else ""
+    )
+    st.markdown(
+        df.sort_values("date", ascending=False)[["date", "title", "company", "ativo", "details", "link"]]
+        .to_html(escape=False, index=False),
+        unsafe_allow_html=True,
     )
 
 st.markdown("---")
