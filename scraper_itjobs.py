@@ -105,7 +105,8 @@ else:
 
 # 4️⃣ Eliminar duplicados por link (caso o mesmo apareça mais de uma vez)
 df_final = df_final.drop_duplicates(subset="link", keep="last")
-
+# ✅ Standardize the format of the “date” column to avoid problems in CSV.
+df_final["date"] = pd.to_datetime(df_final["date"], errors="coerce").dt.strftime("%Y-%m-%d")
 # 5️⃣ Guardar o CSV atualizado
 df_final.to_csv(csv_path, index=False, encoding="utf-8-sig")
 print(f"💾 Histórico atualizado: {len(df_final)} registos guardados em '{csv_path}'")
