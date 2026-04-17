@@ -22,14 +22,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0   # fetches full history (needed for committing/pushing)
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.10"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -48,12 +49,9 @@ jobs:
 
       - name: Commit and push updated CSV (if changed)
         run: |
-          # Adjust this path if your CSV file has a different name or location
           CSV_PATH="itjobs_data_analyst.csv"
-
           if [ -f "$CSV_PATH" ]; then
             git add "$CSV_PATH"
-            # Check if there are any changes staged for commit
             if git diff --cached --quiet; then
               echo "No changes detected in the CSV file — nothing to commit."
             else
@@ -63,5 +61,3 @@ jobs:
           else
             echo "⚠️ CSV file not found at $CSV_PATH. Please verify the path in your Python script."
           fi
-
-
