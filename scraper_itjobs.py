@@ -14,12 +14,60 @@ all_jobs = []
 for page in range(1, 10):  # tenta até 10 páginas
     print(f"🔎 A ler página {page}...")
     url = base_url.format(page)
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, "lxml")
 
-    # encontrar todos os blocos diários na página
-    blocks = soup.select("div.block.borderless")
+    blocks = []
+
+    for tentativa in range(1, 4):
+        try:
+            response = requests.get(
+                url,
+                headers=headers,
+                timeout=30
+            )
+
+            response.raise_for_status()
+
+            soup = BeautifulSoup(response.text, "lxml")
+
+            # encontrar todos os blocos diários na página
+            blocks = soup.select("div.block.borderless")
+
+            if blocks:
+                break
+
+            print(
+                f"⚠️ Tentativa {tentativa}/3: "
+                "nenhum bloco encontrado."
+            )
+
+        except requests.HTTPError as e:
+            if response.status_code == 404 and page > 1:
+                print("🚫 Página não existente — não há mais resultados.")
+                blocks = []
+                break
+
+            print(
+                f"⚠️ Tentativa {tentativa}/3: "
+                f"erro HTTP: {e}"
+            )
+
+        except requests.RequestException as e:
+            print(
+                f"⚠️ Tentativa {tentativa}/3: "
+                f"erro no pedido: {e}"
+            )
+            ###############
+
+        if tentativa < 3:
+            time.sleep(10)
+
     if not blocks:
+        if page == 1:
+            raise RuntimeError(
+                "Nenhuma oferta encontrada na página 1. "
+                "Possível erro temporário, bloqueio ou alteração no site."
+            )
+
         print("🚫 Sem mais resultados — a parar.")
         break
 
@@ -56,6 +104,12 @@ for page in range(1, 10):  # tenta até 10 páginas
             })
 
     time.sleep(1.5)  # boa prática para evitar bloqueios
+
+if not all_jobs:
+    raise RuntimeError(
+        "Nenhuma oferta foi extraída. "
+        "O CSV histórico não será alterado."
+    )
 
 df = pd.DataFrame(all_jobs)
 # converter campo "date" para datetime com o ano atual
